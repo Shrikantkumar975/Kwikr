@@ -106,7 +106,7 @@ Use the designated screenshot placeholders below when capturing and presenting t
 
 <div align="center">
   <kbd>
-    <img src="https://via.placeholder.com/900x480/0f172a/ffffff?text=%5BSCREENSHOT+LABEL%3A+Customer+Storefront+-+Product+Catalog+%26+Categories%5D" alt="Storefront Screenshot Placeholder" width="850" />
+    <img src="assets/screenshots/01-customer-storefront.png" alt="Storefront Screenshot Placeholder" width="850" />
   </kbd>
   <p><em>Label: <b>Screenshot 01 — Customer Storefront: Responsive Product Grid, Real-Time Search & Category Filters</b></em></p>
 </div>

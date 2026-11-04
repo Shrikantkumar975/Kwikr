@@ -33,7 +33,7 @@ async function compare(title, Model, indexName, indexSpec, filter, sort) {
 }
 
 async function main() {
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGO_URI, process.env.DB_NAME ? { dbName: process.env.DB_NAME } : {});
   const sampleProduct = await Product.findOne();
   const sampleOrder = await Order.findOne();
   if (!sampleProduct || !sampleOrder) throw new Error('No data found. Run: npm run seed');

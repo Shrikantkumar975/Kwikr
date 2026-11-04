@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 const { ObjectId, Int32, Double, Long, Decimal128, Binary } = mongoose.mongo;
 
 async function main() {
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGO_URI, process.env.DB_NAME ? { dbName: process.env.DB_NAME } : {});
   const col = mongoose.connection.db.collection('bson_demo');
   await col.deleteMany({});
 

@@ -19,11 +19,25 @@ import { useApp } from '../context/AppContext.jsx';
 import { getProductImage } from '../utils/productVisuals.js';
 
 const STATUSES = ['placed', 'packed', 'out_for_delivery', 'delivered', 'cancelled'];
-const PIE_COLORS = ['#0c831f', '#0284c7', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#64748b'];
+const PIE_COLORS = [
+  '#0c831f', '#0284c7', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6',
+  '#f97316', '#64748b', '#10b981', '#3b82f6', '#eab308', '#a855f7',
+  '#06b6d4', '#f43f5e', '#84cc16', '#6366f1'
+];
 
 export default function Admin() {
   const { showToast } = useApp();
   const [adminTab, setAdminTab] = useState('analytics'); // 'analytics' | 'inventory' | 'orders'
+
+  // Summary stats & active DB
+  const [summary, setSummary] = useState({
+    activeDatabase: '',
+    totalProducts: 0,
+    totalCategories: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
+    lowStockCount: 0,
+  });
 
   // Analytics data
   const [reports, setReports] = useState({
@@ -65,13 +79,25 @@ export default function Admin() {
   const loadReports = useCallback(async () => {
     setReportsLoading(true);
     try {
-      const [topProducts, revenueByCategory, ordersPerDay, lowStock, avgOrderValue] = await Promise.all([
+      const [summaryRes, prodRes, topProducts, revenueByCategory, ordersPerDay, lowStock, avgOrderValue] = await Promise.all([
+        api('/reports/summary').catch(() => null),
+        api('/products?limit=1').catch(() => null),
         api('/reports/top-products'),
         api('/reports/revenue-by-category'),
         api('/reports/orders-per-day'),
         api('/reports/low-stock'),
         api('/reports/avg-order-value'),
       ]);
+
+      if (summaryRes) {
+        setSummary(summaryRes);
+        setProdTotal(summaryRes.totalProducts || (prodRes?.total ?? 0));
+        setOrdersTotal(summaryRes.totalOrders || 0);
+      } else if (prodRes && prodRes.total !== undefined) {
+        setProdTotal(prodRes.total);
+        setSummary((prev) => ({ ...prev, totalProducts: prodRes.total }));
+      }
+
       setReports({
         topProducts: topProducts || [],
         revenueByCategory: revenueByCategory || [],
@@ -211,7 +237,7 @@ export default function Admin() {
       {/* ADMIN CONSOLE HEADER */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 24, fontWeight: 800, color: '#111827' }}>
               ⚡ Kwikr Backoffice
             </span>
@@ -227,6 +253,20 @@ export default function Admin() {
               }}
             >
               ADMIN
+            </span>
+            <span
+              style={{
+                background: '#0284c7',
+                color: '#fff',
+                fontSize: 11,
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: 4,
+                letterSpacing: 0.3,
+              }}
+              title="Active MongoDB database loaded"
+            >
+              🗄️ DB: {summary.activeDatabase || 'kwikr-checkout'}
             </span>
           </div>
           <p className="hint" style={{ margin: '4px 0 0' }}>
@@ -244,7 +284,7 @@ export default function Admin() {
         <div className="metric-card">
           <div className="metric-title">Aggregated Store Revenue</div>
           <div className="metric-val" style={{ color: '#0c831f' }}>
-            ₹{totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            ₹{(summary.totalRevenue || totalRevenue).toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </div>
           <span className="hint" style={{ fontSize: 11 }}>Calculated via $lookup & $group</span>
         </div>
@@ -252,23 +292,23 @@ export default function Admin() {
         <div className="metric-card">
           <div className="metric-title">Total Products in Catalog</div>
           <div className="metric-val" style={{ color: '#0284c7' }}>
-            {prodTotal > 0 ? prodTotal.toLocaleString() : '50,000+'}
+            {(summary.totalProducts || prodTotal || 0).toLocaleString()}
           </div>
-          <span className="hint" style={{ fontSize: 11 }}>Single & Compound Indexes</span>
+          <span className="hint" style={{ fontSize: 11 }}>Flipkart Grocery & Catalog</span>
         </div>
 
         <div className="metric-card">
           <div className="metric-title">Low Stock Alerts</div>
-          <div className="metric-val" style={{ color: reports.lowStock.length > 0 ? '#d97706' : '#10b981' }}>
-            {reports.lowStock.length} items
+          <div className="metric-val" style={{ color: (summary.lowStockCount || reports.lowStock.length) > 0 ? '#d97706' : '#10b981' }}>
+            {summary.lowStockCount !== undefined ? summary.lowStockCount : reports.lowStock.length} items
           </div>
-          <span className="hint" style={{ fontSize: 11 }}>Inventory below 10 units</span>
+          <span className="hint" style={{ fontSize: 11 }}>Inventory threshold ≤ 120 units</span>
         </div>
 
         <div className="metric-card">
           <div className="metric-title">Active Categories</div>
           <div className="metric-val" style={{ color: '#8b5cf6' }}>
-            {categories.length}
+            {summary.totalCategories || categories.length}
           </div>
           <span className="hint" style={{ fontSize: 11 }}>Referenced Category Entities</span>
         </div>
@@ -447,7 +487,7 @@ export default function Admin() {
                 {/* LOW STOCK TABLE */}
                 <div className="cart-items-card">
                   <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 10px', color: '#b45309' }}>
-                    ⚠️ Low Stock Inventory Warning (≤ 10 Units)
+                    ⚠️ Low Stock Inventory Warning (≤ 120 Units)
                   </h3>
                   <div style={{ overflowX: 'auto', maxHeight: 300 }}>
                     <table className="admin-table">
@@ -605,7 +645,7 @@ export default function Admin() {
                   <label className="form-label">Product Name *</label>
                   <input
                     className="form-input"
-                    placeholder="e.g. Organic Alfonso Mango"
+                    placeholder="e.g. Tata Sampann Moong Dal 1kg"
                     value={newProd.name}
                     onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
                     required
@@ -725,7 +765,14 @@ export default function Admin() {
                           </td>
                           <td>
                             <strong>{p.name}</strong>
-                            <div className="hint" style={{ fontSize: 11 }}>{p.unit}</div>
+                            <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
+                              {p.sku && (
+                                <span style={{ fontSize: 10, background: '#f1f5f9', color: '#475569', padding: '1px 5px', borderRadius: 4, fontFamily: 'monospace' }}>
+                                  {p.sku}
+                                </span>
+                              )}
+                              <span className="hint" style={{ fontSize: 11 }}>{p.unit}</span>
+                            </div>
                           </td>
                           <td>
                             <span className="badge" style={{ fontSize: 11 }}>

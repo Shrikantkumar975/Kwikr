@@ -94,7 +94,7 @@ async function main() {
     console.log('Usage: npm run analytics -- <top|pairs|forecast>');
     return;
   }
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGO_URI, process.env.DB_NAME ? { dbName: process.env.DB_NAME } : {});
   await commands[cmd]();
   await mongoose.disconnect();
 }

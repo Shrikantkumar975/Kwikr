@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import { jsonSchemas } from '../config/jsonSchemas.js';
 
 async function main() {
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGO_URI, process.env.DB_NAME ? { dbName: process.env.DB_NAME } : {});
   const db = mongoose.connection.db;
   const existing = (await db.listCollections({}, { nameOnly: true }).toArray()).map((c) => c.name);
 
