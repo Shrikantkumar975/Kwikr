@@ -106,6 +106,14 @@ export default function Admin() {
         lowStock: lowStock || [],
         avgOrderValue: avgOrderValue || [],
       });
+
+      // Ensure lowStockCount reflects the real items found
+      if (Array.isArray(lowStock) && lowStock.length > 0) {
+        setSummary((prev) => ({
+          ...prev,
+          lowStockCount: Math.max(prev.lowStockCount || 0, lowStock.length),
+        }));
+      }
     } catch (e) {
       showToast(e.message, 'error');
     } finally {
@@ -299,8 +307,8 @@ export default function Admin() {
 
         <div className="metric-card">
           <div className="metric-title">Low Stock Alerts</div>
-          <div className="metric-val" style={{ color: (summary.lowStockCount || reports.lowStock.length) > 0 ? '#d97706' : '#10b981' }}>
-            {summary.lowStockCount !== undefined ? summary.lowStockCount : reports.lowStock.length} items
+          <div className="metric-val" style={{ color: Math.max(summary.lowStockCount || 0, reports.lowStock.length) > 0 ? '#d97706' : '#10b981' }}>
+            {Math.max(summary.lowStockCount || 0, reports.lowStock.length)} items
           </div>
           <span className="hint" style={{ fontSize: 11 }}>Inventory threshold ≤ 120 units</span>
         </div>
