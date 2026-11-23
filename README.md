@@ -122,7 +122,7 @@ Use the designated screenshot placeholders below when capturing and presenting t
 
 <div align="center">
   <kbd>
-    <img src="https://via.placeholder.com/900x480/0f172a/ffffff?text=%5BSCREENSHOT+LABEL%3A+Shopping+Cart+%26+Instant+Checkout+Screen%5D" alt="Cart Screenshot Placeholder" width="850" />
+    <img src="assets/screenshots/02-shopping-cart-checkout.png" alt="Cart Screenshot Placeholder" width="850" />
   </kbd>
   <p><em>Label: <b>Screenshot 02 — Shopping Cart: Cart Item Snapshot, Delivery Address & Checkout Summary</b></em></p>
 </div>
@@ -138,7 +138,7 @@ Use the designated screenshot placeholders below when capturing and presenting t
 
 <div align="center">
   <kbd>
-    <img src="https://via.placeholder.com/900x480/0f172a/ffffff?text=%5BSCREENSHOT+LABEL%3A+Customer+Order+History+%26+Visual+Delivery+Stepper%5D" alt="Orders Tracking Screenshot Placeholder" width="850" />
+    <img src="assets/screenshots/03-customer-orders-tracking.png" alt="Orders Tracking Screenshot Placeholder" width="850" />
   </kbd>
   <p><em>Label: <b>Screenshot 03 — Customer Orders: Historical Purchases & Live Delivery Progress Stepper</b></em></p>
 </div>
@@ -154,7 +154,7 @@ Use the designated screenshot placeholders below when capturing and presenting t
 
 <div align="center">
   <kbd>
-    <img src="https://via.placeholder.com/900x480/0f172a/ffffff?text=%5BSCREENSHOT+LABEL%3A+Admin+Executive+Analytics+Dashboard+%28Recharts%29%5D" alt="Admin Analytics Screenshot Placeholder" width="850" />
+    <img src="assets/screenshots/04-admin-analytics-dashboard.png" alt="Admin Analytics Screenshot Placeholder" width="850" />
   </kbd>
   <p><em>Label: <b>Screenshot 04 — Backoffice Analytics: MongoDB Aggregation Pipelines Visualized with Recharts</b></em></p>
 </div>
@@ -170,7 +170,7 @@ Use the designated screenshot placeholders below when capturing and presenting t
 
 <div align="center">
   <kbd>
-    <img src="https://via.placeholder.com/900x480/0f172a/ffffff?text=%5BSCREENSHOT+LABEL%3A+Admin+Inventory+Control+%26+Inline+Restock%5D" alt="Admin Inventory Screenshot Placeholder" width="850" />
+    <img src="assets/screenshots/05-admin-inventory-management.png" alt="Admin Inventory Screenshot Placeholder" width="850" />
   </kbd>
   <p><em>Label: <b>Screenshot 05 — Inventory Operations: Real-Time Stock Monitoring, Inline Updates & SKU Creator</b></em></p>
 </div>
@@ -186,7 +186,7 @@ Use the designated screenshot placeholders below when capturing and presenting t
 
 <div align="center">
   <kbd>
-    <img src="https://via.placeholder.com/900x480/0f172a/ffffff?text=%5BSCREENSHOT+LABEL%3A+Admin+Fulfillment+Queue+%26+Status+Transitions%5D" alt="Admin Fulfillment Screenshot Placeholder" width="850" />
+    <img src="assets/screenshots/06-admin-orders-fulfillment.png" alt="Admin Fulfillment Screenshot Placeholder" width="850" />
   </kbd>
   <p><em>Label: <b>Screenshot 06 — Order Fulfillment Queue: Status Transition Controls for Dark Store Staff</b></em></p>
 </div>
@@ -202,7 +202,7 @@ Use the designated screenshot placeholders below when capturing and presenting t
 
 <div align="center">
   <kbd>
-    <img src="https://via.placeholder.com/900x480/0f172a/ffffff?text=%5BSCREENSHOT+LABEL%3A+MongoDB+Compass+%2F+Atlas+Schema+%26+Indexes+View%5D" alt="MongoDB Compass Screenshot Placeholder" width="850" />
+    <img src="assets/screenshots/07-mongodb-compass-collections.png" alt="MongoDB Compass Screenshot Placeholder" width="850" />
   </kbd>
   <p><em>Label: <b>Screenshot 07 — Database Architecture: MongoDB Compass Collections, Indexes & Document Views</b></em></p>
 </div>
