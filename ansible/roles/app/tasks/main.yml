@@ -10,16 +10,18 @@
 
 - name: Copy project files to EC2
   copy:
-    src: "../{{ item }}"
-    dest: "{{ app_dir }}/{{ item }}"
+    src: "{{ playbook_dir }}/../{{ item.src }}"
+    dest: "{{ app_dir }}/{{ item.dest }}"
     owner: "{{ app_user }}"
     group: "{{ app_user }}"
     mode: preserve
   loop:
-    - "docker-compose.yml"
-    - "docker"
-    - "client"
-    - "server"
+    - { src: docker-compose.yml, dest: docker-compose.yml }
+    - { src: docker/, dest: docker/ }
+    - { src: client/, dest: client/ }
+    - { src: server/, dest: server/ }
+  loop_control:
+    label: "{{ item.dest }}"
 
 - name: Generate production environment configuration (.env)
   copy:

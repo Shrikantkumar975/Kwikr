@@ -18,8 +18,8 @@ resource "tls_private_key" "kwikr_ssh_key" {
 }
 
 resource "aws_key_pair" "kwikr_key" {
-  key_name   = "kwikr-aws-key"
-  public_key = tls_private_key.kwikr_ssh_key.public_key_openssh
+  key_name_prefix = "kwikr-aws-key-"
+  public_key      = tls_private_key.kwikr_ssh_key.public_key_openssh
 }
 
 resource "local_file" "private_key" {
@@ -29,8 +29,12 @@ resource "local_file" "private_key" {
 }
 
 resource "aws_security_group" "kwikr_sg" {
-  name        = "kwikr-security-group"
+  name_prefix = "kwikr-sg-"
   description = "Allow SSH, HTTP App Traffic, and Nagios Monitoring"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 
   ingress {
     description = "SSH for administration & Ansible"

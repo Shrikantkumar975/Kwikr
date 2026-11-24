@@ -58,6 +58,17 @@ jobs:
         with:
           terraform_version: 1.8.0
 
+      - name: Restore Terraform State
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            terraform/terraform.tfstate
+            terraform/terraform.tfstate.backup
+            terraform/kwikr-key.pem
+          key: terraform-state-${{ github.run_id }}
+          restore-keys: |
+            terraform-state-
+
       - name: Provision Infrastructure with Terraform
         id: terraform_apply
         run: |
@@ -94,14 +105,12 @@ jobs:
             --extra-vars "mongo_uri=${{ secrets.MONGO_URI }}" \
             --extra-vars "jwt_secret=${{ secrets.JWT_SECRET }}"
 
-      - name: Publish Deployment Summary
-        run: |
-          echo "## Kwikr Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Service | URL |" >> $GITHUB_STEP_SUMMARY
-          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Kwikr Storefront** | http://${{ env.EC2_IP }}:8000 |" >> $GITHUB_STEP_SUMMARY
-          echo "| **API Health Check** | http://${{ env.EC2_IP }}:8000/api/health |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Nagios Dashboard** | http://${{ env.EC2_IP }}:9000/nagios/ |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "*Automated provisioning via Terraform & configuration via Ansible completed successfully.*" >> $GITHUB_STEP_SUMMARY
+      - name: Save Terraform State
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: |
+            terraform/terraform.tfstate
+            terraform/terraform.tfstate.backup
+            terraform/kwikr-key.pem
+          key: terraform-state-${{ github.run_id }}
