@@ -44,7 +44,6 @@
   command:
     cmd: docker compose up -d --build
     chdir: "{{ app_dir }}"
-  become_user: "{{ app_user }}"
 
 - name: Wait for Kwikr Backend Health endpoint to respond with OK
   uri:
