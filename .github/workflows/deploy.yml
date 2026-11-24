@@ -1,0 +1,107 @@
+name: Auto-Deploy
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: "Pre-Flight Validation"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.0
+
+      - name: Validate Terraform
+        run: |
+          cd terraform
+          terraform init -backend=false
+          terraform validate
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ansible Core
+        run: pip install ansible-core
+
+      - name: Validate Ansible Playbook
+        run: ansible-playbook --syntax-check ansible/site.yml
+
+      - name: Validate Docker Compose
+        run: docker compose config
+
+  provision-and-deploy:
+    name: "Provision (Terraform) & Deploy (Ansible)"
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.0
+
+      - name: Provision Infrastructure with Terraform
+        id: terraform_apply
+        run: |
+          cd terraform
+          terraform init
+          terraform apply -auto-approve
+          echo "EC2_IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
+
+      - name: Setup Python & Ansible
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ansible Core
+        run: pip install ansible-core
+
+      - name: Set Private Key Permissions & Wait for SSH
+        run: |
+          chmod 400 terraform/kwikr-key.pem
+          echo "Waiting for EC2 instance (${{ env.EC2_IP }}) SSH daemon to initialize..."
+          for i in {1..30}; do
+            if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -i terraform/kwikr-key.pem ubuntu@${{ env.EC2_IP }} "echo ssh_ready" 2>/dev/null; then
+              echo "SSH is up and responding!"
+              break
+            fi
+            echo "Waiting for SSH to become available... ($i/30)"
+            sleep 5
+          done
+
+      - name: Execute Ansible Deployment (Roles - common, docker, app)
+        run: |
+          cd ansible
+          ansible-playbook -i inventory.ini site.yml \
+            --extra-vars "mongo_uri=${{ secrets.MONGO_URI }}" \
+            --extra-vars "jwt_secret=${{ secrets.JWT_SECRET }}"
+
+      - name: Publish Deployment Summary
+        run: |
+          echo "## Kwikr Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | URL |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Kwikr Storefront** | http://${{ env.EC2_IP }}:8000 |" >> $GITHUB_STEP_SUMMARY
+          echo "| **API Health Check** | http://${{ env.EC2_IP }}:8000/api/health |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Nagios Dashboard** | http://${{ env.EC2_IP }}:9000/nagios/ |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "*Automated provisioning via Terraform & configuration via Ansible completed successfully.*" >> $GITHUB_STEP_SUMMARY
