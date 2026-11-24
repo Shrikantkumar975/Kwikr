@@ -22,3 +22,15 @@ pnpm-debug.log*
 # Operating system files
 .DS_Store
 Thumbs.db
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+*.pem
+
+# Ansible
+ansible/inventory.ini
+*.retry
