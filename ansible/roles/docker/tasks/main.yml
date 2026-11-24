@@ -1,0 +1,18 @@
+---
+# Tasks for docker role (Engine and Compose installation)
+- name: Install Docker and Docker Compose plugin
+  apt:
+    name: "{{ docker_packages }}"
+    state: present
+
+- name: Ensure Docker service is enabled and started
+  systemd:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add user to docker group
+  user:
+    name: "{{ docker_user }}"
+    groups: docker
+    append: true

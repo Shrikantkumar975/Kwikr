@@ -1,0 +1,16 @@
+---
+
+- name: Provision and Deploy Kwikr Stack
+  hosts: kwikr_servers
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: common
+      tags: [common, system]
+
+    - role: docker
+      tags: [docker]
+
+    - role: app
+      tags: [app, deploy]

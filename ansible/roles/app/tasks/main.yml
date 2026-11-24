@@ -1,0 +1,69 @@
+---
+# Tasks for app role (File sync, environment configuration, container lifecycle & health test)
+- name: Create project directory on remote server
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0755'
+
+- name: Copy project files to EC2
+  copy:
+    src: "../{{ item }}"
+    dest: "{{ app_dir }}/{{ item }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: preserve
+  loop:
+    - "docker-compose.yml"
+    - "docker"
+    - "client"
+    - "server"
+
+- name: Generate production environment configuration (.env)
+  copy:
+    dest: "{{ app_dir }}/.env"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0600'
+    content: |
+      NODE_ENV=production
+      PORT=5000
+      MONGO_URI={{ mongo_uri }}
+      DB_NAME=kwikr
+      JWT_SECRET={{ jwt_secret }}
+      CLIENT_URL=http://{{ ansible_host }},http://{{ ansible_host }}:{{ app_port }},http://localhost
+      APP_PORT={{ app_port }}
+      NAGIOS_PORT={{ nagios_port }}
+      NAGIOSADMIN_USER={{ nagios_user }}
+      NAGIOSADMIN_PASS={{ nagios_pass }}
+      TIMEZONE={{ timezone }}
+
+- name: Build and start Docker Compose stack
+  command:
+    cmd: docker compose up -d --build
+    chdir: "{{ app_dir }}"
+  become_user: "{{ app_user }}"
+
+- name: Wait for Kwikr Backend Health endpoint to respond with OK
+  uri:
+    url: "http://localhost:{{ app_port }}/api/health"
+    method: GET
+    status_code: 200
+    return_content: true
+  register: health_result
+  until: health_result.status == 200 and 'ok' in health_result.content
+  retries: 15
+  delay: 5
+
+- name: Deployment Success Banner
+  debug:
+    msg:
+      - "=========================================================="
+      - "KWIKR APP SUCCESSFULLY DEPLOYED VIA TERRAFORM & ANSIBLE!"
+      - "=========================================================="
+      - "Storefront URL:       http://{{ ansible_host }}:{{ app_port }}"
+      - "API Health Check:     http://{{ ansible_host }}:{{ app_port }}/api/health"
+      - "Nagios Dashboard:     http://{{ ansible_host }}:{{ nagios_port }}/nagios/"
+      - "=========================================================="

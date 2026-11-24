@@ -1,0 +1,11 @@
+---
+# Defaults for common role
+swap_size: "1G"
+swap_path: "/swapfile"
+
+common_packages:
+  - curl
+  - git
+  - ca-certificates
+  - gnupg
+  - ufw

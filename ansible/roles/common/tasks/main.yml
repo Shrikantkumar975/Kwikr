@@ -1,0 +1,36 @@
+---
+# Tasks for common role (System update, packages, swap allocation)
+- name: Update APT package cache
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install system dependencies
+  apt:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Check if swapfile exists
+  stat:
+    path: "{{ swap_path }}"
+  register: swap_file_check
+
+- name: Allocate swapfile for EC2 stability
+  command: "fallocate -l {{ swap_size }} {{ swap_path }}"
+  when: not swap_file_check.stat.exists
+
+- name: Set secure permissions on swapfile
+  file:
+    path: "{{ swap_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+  when: not swap_file_check.stat.exists
+
+- name: Format swapfile
+  command: "mkswap {{ swap_path }}"
+  when: not swap_file_check.stat.exists
+
+- name: Enable swapfile
+  command: "swapon {{ swap_path }}"
+  when: not swap_file_check.stat.exists

@@ -1,0 +1,7 @@
+---
+# Defaults for docker role
+docker_packages:
+  - docker.io
+  - docker-compose-v2
+
+docker_user: "ubuntu"
