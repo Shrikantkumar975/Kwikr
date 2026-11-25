@@ -99,11 +99,18 @@ jobs:
           done
 
       - name: Execute Ansible Deployment (Roles - common, docker, app)
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
+          if [[ -z "$MONGO_URI" || -z "$JWT_SECRET" ]]; then
+            echo "::error::Required MONGO_URI or JWT_SECRET secret is missing"
+            exit 1
+          fi
           cd ansible
           ansible-playbook -i inventory.ini site.yml \
-            --extra-vars "mongo_uri=${{ secrets.MONGO_URI }}" \
-            --extra-vars "jwt_secret=${{ secrets.JWT_SECRET }}"
+            --extra-vars "mongo_uri=${MONGO_URI}" \
+            --extra-vars "jwt_secret=${JWT_SECRET}"
 
       - name: Save Terraform State
         uses: actions/cache/save@v4

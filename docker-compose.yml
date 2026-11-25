@@ -6,12 +6,12 @@ services:
     container_name: kwikr-server
     restart: unless-stopped
     environment:
-      - NODE_ENV=production
-      - PORT=5000
-      - MONGO_URI="${MONGO_URI}"
-      - DB_NAME="${DB_NAME:-kwikr}"
-      - JWT_SECRET="${JWT_SECRET}"
-      - CLIENT_URL="${CLIENT_URL}"
+      NODE_ENV: production
+      PORT: "5000"
+      MONGO_URI: "${MONGO_URI}"
+      DB_NAME: "${DB_NAME:-kwikr}"
+      JWT_SECRET: "${JWT_SECRET}"
+      CLIENT_URL: "${CLIENT_URL}"
     expose:
       - "5000"
     healthcheck:
