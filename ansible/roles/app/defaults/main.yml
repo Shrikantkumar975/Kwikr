@@ -4,8 +4,8 @@ app_dir: "/home/ubuntu/kwikr"
 app_user: "ubuntu"
 
 # Port & Monitoring settings
-app_port: 8000
-nagios_port: 9000
+app_port: 80
+nagios_port: 8080
 nagios_user: "nagiosadmin"
 nagios_pass: "kwikr123"
 timezone: "Asia/Kolkata"
