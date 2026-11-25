@@ -19,11 +19,11 @@ variable "instance_name" {
 variable "app_port" {
   description = "Port for the Kwikr web application"
   type        = number
-  default     = 8000
+  default     = 80
 }
 
 variable "nagios_port" {
   description = "Port for the Nagios monitoring dashboard"
   type        = number
-  default     = 9000
+  default     = 8080
 }

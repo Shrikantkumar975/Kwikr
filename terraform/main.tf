@@ -91,12 +91,3 @@ resource "aws_instance" "kwikr_server" {
     Project = "Kwikr DevOps"
   }
 }
-
-resource "local_file" "ansible_inventory" {
-  content         = <<-EOT
-[kwikr_servers]
-kwikr_host ansible_host=${aws_instance.kwikr_server.public_ip} ansible_user=ubuntu ansible_ssh_private_key_file=../terraform/kwikr-key.pem ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-EOT
-  filename        = "${path.module}/../ansible/inventory.ini"
-  file_permission = "0644"
-}
