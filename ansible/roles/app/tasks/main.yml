@@ -8,22 +8,27 @@
     group: "{{ app_user }}"
     mode: '0755'
 
-- name: Copy project files to EC2
-  copy:
-    src: "{{ playbook_dir }}/../{{ item.src }}"
-    dest: "{{ app_dir }}/{{ item.dest }}"
+- name: Bundle project files into a single compressed archive
+  delegate_to: localhost
+  become: false
+  command:
+    cmd: "tar --exclude=node_modules --exclude=.git --exclude=dist -czf {{ playbook_dir }}/.payload.tar.gz -C {{ playbook_dir }}/.. docker-compose.yml docker client server"
+
+- name: Upload and unpack project bundle on EC2
+  unarchive:
+    src: "{{ playbook_dir }}/.payload.tar.gz"
+    dest: "{{ app_dir }}"
     owner: "{{ app_user }}"
     group: "{{ app_user }}"
-    mode: preserve
-  loop:
-    - { src: docker-compose.yml, dest: docker-compose.yml }
-    - { src: docker/, dest: docker/ }
-    - { src: client/, dest: client/ }
-    - { src: server/, dest: server/ }
-  loop_control:
-    label: "{{ item.dest }}"
 
-- name: Generate production environment configuration (.env)
+- name: Clean up local temporary bundle
+  delegate_to: localhost
+  become: false
+  file:
+    path: "{{ playbook_dir }}/.payload.tar.gz"
+    state: absent
+
+- name: Generate .env
   copy:
     dest: "{{ app_dir }}/.env"
     owner: "{{ app_user }}"
@@ -47,7 +52,7 @@
     cmd: docker compose up -d --build
     chdir: "{{ app_dir }}"
 
-- name: Wait for Kwikr Backend Health endpoint to respond with OK
+- name: Kwikr Backend Health check
   uri:
     url: "http://localhost:{{ app_port }}/api/health"
     method: GET
