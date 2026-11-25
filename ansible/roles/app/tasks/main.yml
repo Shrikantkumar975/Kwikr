@@ -1,5 +1,4 @@
 ---
-# Tasks for app role (File sync, environment configuration, container lifecycle & health test)
 - name: Create project directory on remote server
   file:
     path: "{{ app_dir }}"

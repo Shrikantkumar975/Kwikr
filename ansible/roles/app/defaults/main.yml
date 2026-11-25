@@ -1,9 +1,7 @@
 ---
-# Defaults for app deployment role
 app_dir: "/home/ubuntu/kwikr"
 app_user: "ubuntu"
 
-# Port & Monitoring settings
 app_port: 80
 nagios_port: 8080
 nagios_user: "nagiosadmin"
