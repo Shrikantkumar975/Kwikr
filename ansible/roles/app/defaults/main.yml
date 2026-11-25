@@ -3,14 +3,9 @@
 app_dir: "/home/ubuntu/kwikr"
 app_user: "ubuntu"
 
-# MongoDB Atlas & Authentication
-mongo_uri: "mongodb+srv://shrikantkumar23_db_user:rc2ZWmYCsrfKD9cC@kwikr.zeobras.mongodb.net/kwikr-checkout"
-db_name: "kwikr-checkout"
-jwt_secret: "gyhgfrsr3vt5545@rdd@rtto87b"
-
 # Port & Monitoring settings
 app_port: 80
-nagios_port: 9000
+nagios_port: 8080
 nagios_user: "nagiosadmin"
 nagios_pass: "kwikr123"
 timezone: "Asia/Kolkata"
