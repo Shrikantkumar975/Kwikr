@@ -34,3 +34,7 @@ crash.log
 # Ansible
 ansible/inventory.ini
 *.retry
+
+# Temporary deployment archives
+.payload.tar.gz
+*.tar.gz
