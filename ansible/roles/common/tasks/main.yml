@@ -9,3 +9,28 @@
   apt:
     name: "{{ common_packages }}"
     state: present
+
+- name: Check if swapfile exists
+  stat:
+    path: /swapfile
+  register: swap_file_check
+
+- name: Allocate 1GB swapfile for t3.micro stability
+  command: fallocate -l 1G /swapfile
+  when: not swap_file_check.stat.exists
+
+- name: Set permissions on swapfile
+  file:
+    path: /swapfile
+    owner: root
+    group: root
+    mode: '0600'
+  when: not swap_file_check.stat.exists
+
+- name: Format swapfile
+  command: mkswap /swapfile
+  when: not swap_file_check.stat.exists
+
+- name: Enable swapfile
+  command: swapon /swapfile
+  when: not swap_file_check.stat.exists

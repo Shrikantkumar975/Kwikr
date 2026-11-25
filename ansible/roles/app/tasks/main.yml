@@ -47,9 +47,23 @@
       NAGIOSADMIN_PASS={{ nagios_pass }}
       TIMEZONE={{ timezone }}
 
-- name: Build and start Docker Compose stack
+- name: pull Nagiosimage
   command:
-    cmd: docker compose up -d --build
+    cmd: docker compose pull nagios
+    chdir: "{{ app_dir }}"
+  register: pull_res
+  retries: 3
+  delay: 5
+  until: pull_res.rc == 0
+
+- name: Build application containers sequentially
+  command:
+    cmd: docker compose build --parallel=false
+    chdir: "{{ app_dir }}"
+
+- name: Start Docker Compose stack
+  command:
+    cmd: docker compose up -d
     chdir: "{{ app_dir }}"
 
 - name: Kwikr Backend Health check
